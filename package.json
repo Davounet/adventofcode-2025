@@ -1,0 +1,22 @@
+{
+  "name": "advent",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "aocjs": "^1.0.3"
+  },
+  "prettier": {
+    "printWidth": 160,
+    "tabWidth": 2,
+    "tabs": false,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "none",
+    "bracketSpacing": true,
+    "sortAttributes": true,
+    "arrowParens": "avoid",
+    "htmlWhitespaceSensitivity": "css"
+  }
+}
