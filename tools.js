@@ -3,9 +3,12 @@ const session = '53616c7465645f5fb818aa8c21aef356518417eb7f53a2e4559623e26b73449
 function sum(arr) {
   return arr.reduce((a, b) => a + b, 0)
 }
+function multiply(arr) {
+  return arr.reduce((a, b) => a * b, 1)
+}
 
 function factors(number) {
   return Array.from(Array(number + 1), (_, i) => i).filter(i => number % i === 0)
 }
 
-module.exports = { session, sum, factors }
+module.exports = { session, sum, multiply, factors }
