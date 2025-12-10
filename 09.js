@@ -2,15 +2,6 @@ const { Client } = require('aocjs')
 const tools = require('./tools')
 const client = new Client({ session: tools.session })
 
-const sample = `7,1
-11,1
-11,7
-9,7
-9,5
-2,5
-2,3
-7,3`
-
 async function main() {
   const input = await client.getInput(2025, 9)
 
@@ -25,49 +16,32 @@ async function main() {
 main()
 
 function step1(tiles) {
-  let max = 0
-  tiles.forEach(tile1 => {
-    tiles.forEach(tile2 => {
-      if (tile1 === tile2) return
-
-      const area = Math.abs(tile1[0] - tile2[0] + 1) * Math.abs(tile1[1] - tile2[1] + 1)
-      if (area > max) max = area
-    })
-  })
-  console.log('step1: ', max)
+  const rects = tiles.map((t1, i) => tiles.slice(i + 1).map(t2 => corners(t1, t2))).flat()
+  const areas = rects.map(([t1, t2]) => area(t1, t2))
+  console.log('step1: ', Math.max(...areas))
 }
 
 function step2(tiles) {
-  let max = 0
-  tiles.forEach(tile1 => {
-    tiles.forEach(tile2 => {
-      if (tile1 === tile2) return
-      if (hasCollisions(tile1, tile2, tiles)) return
-
-      const area = Math.abs(tile1[0] - tile2[0] + 1) * Math.abs(tile1[1] - tile2[1] + 1)
-      if (area > max) max = area
-    })
-  })
-  console.log('step1: ', max)
+  const rects = tiles
+    .map((t1, i) => tiles.slice(i + 1).map(t2 => corners(t1, t2)))
+    .flat()
+    .sort((a, b) => area(...b) - area(...a)) // sort by area to only look for the first one
+  const sides = tiles.map((t1, i) => corners(t1, tiles[(i + 1) % tiles.length])).sort((a, b) => area(...b) - area(...a)) // sort by area to check for biggest side first
+  const target = rects.find(a => !sides.find(b => intersects(a, b)))
+  console.log('step2: ', area(...target))
 }
 
-function hasCollisions(tile1, tile2, tiles) {
-  const tl = [Math.min(tile1[0], tile2[0]), Math.min(tile1[1], tile2[1])]
-  const bl = [Math.max(tile1[0], tile2[0]), Math.min(tile1[1], tile2[1])]
-  const br = [Math.max(tile1[0], tile2[0]), Math.max(tile1[1], tile2[1])]
-  const tr = [Math.min(tile1[0], tile2[0]), Math.max(tile1[1], tile2[1])]
-
-  
+function corners(t1, t2) {
+  return [
+    [Math.min(t1[0], t2[0]), Math.min(t1[1], t2[1])],
+    [Math.max(t1[0], t2[0]), Math.max(t1[1], t2[1])]
+  ]
 }
 
-function intersects([as, ae], [bs, be]) {
-  const av = as[1] !== ae[1] ? 1 : 0
-  const bv = bs[1] !== be[1] ? 1 : 0
-  if (av === 1 && bv === 1) return false // both vertical
-  if (av === 0 && bv === 0) return false // both horizontal
+function area(t1, t2) {
+  return (t2[0] - t1[0] + 1) * (t2[1] - t1[1] + 1)
+}
 
-  const v = av === 1 ? [as, ae] : [bs, be]
-  const h = av === 0 ? [as, ae] : [bs, be]
-
-  return min(h[0][1], h[1][1]) <= v[0][1] && max(h[0][1], h[1][1]) >= v[0][1] && min(v[0][0], v[1][0]) <= h[0][0] && max(v[0][1], v[1][1]) >= h[0][0]
+function intersects(a, b) {
+  return b[0][0] < a[1][0] && b[0][1] < a[1][1] && b[1][0] > a[0][0] && b[1][1] > a[0][1]
 }
